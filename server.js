@@ -12,6 +12,8 @@ const methodOverride = require('method-override')
 const MongoStore = require("connect-mongo")
 const flash = require('connect-flash')
 
+const okay = 'this is going okay'
+
 passport.use(new LocalStrategy(User.authenticate()))
 
 const app = express()
