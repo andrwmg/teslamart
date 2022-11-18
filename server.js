@@ -30,7 +30,9 @@ db.mongoose
   });
 
 let corsOptions = {
-  origin: "https://teslamartv2backend.herokuapp.com/",
+  origin: 
+  "https://teslamartv2backend.herokuapp.com/",
+  // "http://localhost:8081",
   credentials: true
 };
 
@@ -43,7 +45,7 @@ app.use(methodOverride('_method'))
 
 app.use(express.static(path.join(__dirname, 'build')));
 
-const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/tesla';
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/teslamart';
 
 const secret = process.env.SECRET || 'This should be a better secret'
 
