@@ -10,7 +10,7 @@ const User = require('./app/models/user.model')
 const SQLiteStore = require('connect-sqlite3')(session);
 const methodOverride = require('method-override')
 const MongoStore = require("connect-mongo")
-
+const flash = require('connect-flash')
 
 passport.use(new LocalStrategy(User.authenticate()))
 
