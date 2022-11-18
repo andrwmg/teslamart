@@ -20,7 +20,6 @@ const db = require("./app/models/index.js");
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
-    // useUnifiedTopology: true
   })
   .then(() => {
     console.log("Connected to the database!");
@@ -31,7 +30,7 @@ db.mongoose
   });
 
 let corsOptions = {
-  origin: "http://localhost:8081",
+  origin: "https://teslamartv2backend.herokuapp.com/",
   credentials: true
 };
 
@@ -46,18 +45,20 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/tesla';
 
+const secret = process.env.SECRET || 'This should be a better secret'
+
 const store = MongoStore.create({
   mongoUrl: dbUrl,
   touchAfter: 24 * 60 * 60,
   crypto: {
-      secret: 'Help!!!'
+      secret
   }
 });
 
 const sessionConfig = {
     store,
     name: 'session',
-    secret:"Squirrels!!!",
+    secret,
     resave: false,
     saveUninitialized: true,
     httpOnly: true,
@@ -68,7 +69,7 @@ const sessionConfig = {
     }
 }
 app.use(session(sessionConfig))
-
+app.use(flash());
 app.use(passport.initialize())
 app.use(passport.session())
 
