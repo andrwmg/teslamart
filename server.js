@@ -44,8 +44,10 @@ app.use(methodOverride('_method'))
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/tesla';
+
 const store = MongoStore.create({
-  mongoUrl: 'mongodb://localhost:27017/teslamart',
+  mongoUrl: dbUrl,
   touchAfter: 24 * 60 * 60,
   crypto: {
       secret: 'Help!!!'
