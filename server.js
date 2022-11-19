@@ -11,6 +11,9 @@ const SQLiteStore = require('connect-sqlite3')(session);
 const methodOverride = require('method-override')
 const MongoStore = require("connect-mongo")
 const flash = require('connect-flash')
+const multer  = require('multer')
+const upload = multer({ dest: 'uploads/' })
+
 
 passport.use(new LocalStrategy(User.authenticate()))
 

@@ -8,7 +8,7 @@ const Listing = db.listings
 exports.create = (req, res) => {
   // Validate request
   if (!req.body.title) {
-    res.status(400).send({ message: "Content can not be empty!" });
+    res.status(400).send({ message: "Content can not be empty!", messageStatus:'error' });
     return;
   }
 
@@ -35,7 +35,8 @@ exports.create = (req, res) => {
   listing
     .save()
     .then(data => {
-      res.send(data);
+      console.log(data._id.toString())
+      res.send({id: data._id.toString(), message:'Listing created successfully', messageStatus: 'success'});
     })
     .catch(err => {
       res.status(500).send({
@@ -58,7 +59,7 @@ exports.findAll = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving listings."
+          err.message || "Some error occurred while retrieving listings.", messageStatus: 'error'
       });
     });
 };
@@ -69,21 +70,21 @@ exports.findOne = (req, res) => {
   .populate('author')
   .populate('images')
     .then(data => {
-      if (!data)
-        res.status(404).send({ message: "Not found Listing with id " + id });
-      else res.send(data);
+      if (!data) {
+        res.status(404).send({ message: "Not found Listing with id " + id , messageStatus: 'error'});
+      } else res.send(data);
     })
     .catch(err => {
       res
         .status(500)
-        .send({ message: "Error retrieving Listing with id=" + id });
+        .send({ message: "Error retrieving Listing with id=" + id, messageStatus: 'error' });
     });
 };
 
 exports.update = (req, res) => {
     if (!req.body) {
       return res.status(400).send({
-        message: "Data to update can not be empty!"
+        message: "Data to update can not be empty!", messageStatus: 'error'
       });
     }
   
@@ -95,13 +96,13 @@ exports.update = (req, res) => {
         console.log(data)
         if (!data) {
           res.status(404).send({
-            message: `Cannot update Listing with id=${id}. Maybe Listing was not found!`
+            message: `Cannot update Listing with id=${id}. Maybe Listing was not found!`, messageStatus: 'error'
           });
-        } else res.send({ message: "Listing was updated successfully." });
+        } else res.send({ message: "Listing was updated successfully.", messageStatus:'success' });
       })
       .catch(err => {
         res.status(500).send({
-          message: "Error updating Listing with id=" + id
+          message: "Error updating Listing with id=" + id, messageStatus: 'error'
         });
       });
 }
@@ -113,23 +114,28 @@ exports.delete = (req, res) => {
     .then(data => {
       if (!data) {
         res.status(404).send({
-          message: `Cannot delete Listing with id=${id}. Maybe Listing was not found!`
+          message: `Cannot delete Listing with id=${id}. Maybe Listing was not found!`,
+          messageStatus:'error'
         });
       } else {
         res.send({
-          message: "Listing was deleted successfully!"
+          message: "Listing was deleted successfully!", messageStatus: 'success'
         });
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Could not delete Listing with id=" + id
+        message: "Could not delete Listing with id=" + id,
+        messageStatus: 'error'
       });
     });
 };
 
 exports.deleteAll = (req, res) => {
   Listing.deleteMany({})
+  .then(()=> {
+    res.send({message: 'You just done deleted all them listings', messageStatus:'success'})
+  })
 }
 
 exports.seed = (req, res) => {

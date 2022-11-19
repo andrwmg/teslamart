@@ -1,3 +1,7 @@
+CLOUDINARY_CLOUD_NAME=deuft4auk
+CLOUDINARY_KEY=487177743372152
+CLOUDINARY_SECRET=MFTuBFYrjaj-wDWjpOam7kL6SBI
+
 DB_URL=mongodb+srv://andrwmg:mNjzjSHqmFIppNke@cluster0.lablrgt.mongodb.net/?retryWrites=true&w=majority
 
 SECRET=squirrels

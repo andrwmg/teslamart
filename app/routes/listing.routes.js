@@ -1,9 +1,12 @@
 const listings = require("../controllers/listing.controller.js");
 const router = require("express").Router();
 const {isLoggedIn, isAuthor} = require('../../middleware')
+const multer = require('multer')
+const {storage} = require('../cloudinary')
+const upload = multer({storage})
 
 // Create a new Tutorial
-router.post("/", listings.create);
+router.post("/", upload.single('image'), listings.create);
 
 // // Retrieve all Tutorials
 router.get("/", listings.findAll);
