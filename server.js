@@ -26,10 +26,12 @@ db.mongoose
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
+  // "https://teslamartv2.herokuapp.com",
 
 let corsOptions = {
   origin: 
-  "https://teslamartv2.herokuapp.com",
+    "https://teslamartv2.herokuapp.com",
+
   // "http://localhost:8081",
   credentials: true
 };
@@ -83,27 +85,6 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 })
-
-// passport.use(new LocalStrategy(
-//   function(username, password, done) {
-//     User.findOne({ username: username }, function (err, user) {
-//       if (err) { return done(err); }
-//       if (!user) { return done(null, false); }
-//       if (!comparePasswords(user.password, password)) { return done(null, false); }
-//       return done(null, user);
-//     }); 
-//   }
-// ))
-
-// passport.serializeUser(function(user, done) {
-//   done(null, user.id);
-// });
-
-// passport.deserializeUser(function(id, done) {
-//   User.findById(id, function (err, user) {
-//     done(err, user);
-//   });
-// });
 
 const listingRoutes = require("./app/routes/listing.routes");
 const commentRoutes = require("./app/routes/comment.routes");
