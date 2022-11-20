@@ -25,7 +25,6 @@ exports.register = async (req, res) => {
 }
 
 exports.login =  ((req, res, err) => {
-    console.log(err)
     if (err) {
         res.send({ message: err.message, messageStatus:'error'})
     } else {
@@ -37,15 +36,10 @@ exports.login =  ((req, res, err) => {
 exports.getUser = (req,res) => {
     if(req.user) {
         res.json(req.user)
-        console.log(req.user)
     }
-    
-    console.log(req.user)
 }
 
-exports.logout = (req,res,next)=> {
-    console.log(req)
-    console.log("HOLA!")
+exports.logout = (req,res)=> {
     try{
     req.logout(err => {
         if (!err) {
