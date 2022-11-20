@@ -6,7 +6,7 @@ const {storage} = require('../cloudinary')
 const upload = multer({storage})
 
 // Create a new Tutorial
-router.post("/", upload.single('image'), listings.create);
+router.post("/", isLoggedIn, listings.create);
 
 // // Retrieve all Tutorials
 router.get("/", listings.findAll);
@@ -18,9 +18,9 @@ router.get("/", listings.findAll);
 router.get("/:id", listings.findOne);
 
 // // Update a Tutorial with id
-router.put("/:id",listings.update);
+router.put("/:id", isLoggedIn, isAuthor, listings.update);
 
 // // Delete a Tutorial with id
-router.delete("/:id", listings.delete);
+router.delete("/:id", isLoggedIn, isAuthor, listings.delete);
 
 module.exports = router

@@ -1,29 +1,23 @@
 const Listing = require("./app/models/listing.model");
 const Comment = require("./app/models/comment.model");
-const passport = require('passport')
 
 
 module.exports.isLoggedIn = (req, res, next) => {
-    console.log('isLoggedIn Middleware ' + req.user)
-
-    console.log(req.isAuthenticated())
     if (!req.isAuthenticated()) {
-        console.log("Sign in, bro!")
-        res.send('You must be signed in!')
+        return res.send('You must be signed in')
     } else {
-        next()
+        return next()
     }
 }
 
 module.exports.isAuthor = async (req, res, next) => {
-    console.log('isAuthor Middleware ' + req.user)
-    const { isAuthor } = req.body;
-    // const listing = await Listing.findById(id).populate('author')
-    if (!isAuthor) {
-        console.log('You cant delete that, yo!')
-        res.send('Seriously, do not do that!')
+    const {id} = req.params
+    const { _id } = req.user;
+    const listing = await Listing.findById(id).populate('author')
+    if (_id.toString() === listing.author._id.toString()) {
+        return next()
     } else {
-    next()
+        return res.send({message: 'You need to be the author of the listing to modify it', messageStatus: 'error'})
     }
 }
 

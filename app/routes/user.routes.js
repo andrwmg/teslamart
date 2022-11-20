@@ -4,28 +4,37 @@ const passport = require('passport');
 const { isLoggedIn } = require('../../middleware');
 const users = require('../controllers/user.controller');
 
-    router.post('/register', users.register)
-  
-    router.post('/login', 
-    // passport.authenticate('local'
-    // // , (req, res, next) => {
-    // //         // handle success
-    // //         if (req.xhr) { return res.json({ id: req.user.id }); }
-    // // }
-    // ,
-    // {session: false}),
-    passport.authenticate('local'),
-    users.login
-     );
+router.post('/register', users.register)
 
-    router.get('/getUser', users.getUser)
+router.post('/login', 
+// passport.authenticate('local', 
+// {failureMessage:true}),
+    function (req, res, next) {
+        passport.authenticate('local', function (err, user, info) {
+            if (err) { return next(err) }
+            if (!user) {
+                return res.send({ message: info.message, messageStatus: 'error' });
+            }
+            req.login(user, loginErr => {
+                if (loginErr) {
+                  return next(loginErr);
+                }
+                return res.send({ user: user, success : true, message : 'Welcome back to Tesla Mart!', messageStatus: 'success' });
+              });
+        })(req,res,next);
+    }
+    // // ,
+    // users.login
+);
+
+router.get('/getUser', users.getUser)
 
 
-    // router.post('/login', passport.authenticate('local'), users.login)
-  
-    // // Retrieve all published Tutorials
-    router.get('/logout', users.logout)
-  
-    // app.use('/api/users', router);
-  
-    module.exports = router
+// router.post('/login', passport.authenticate('local'), users.login)
+
+// // Retrieve all published Tutorials
+router.get('/logout', users.logout)
+
+// app.use('/api/users', router);
+
+module.exports = router

@@ -7,15 +7,10 @@ const LocalStrategy = require('passport-local')
 const crypto = require('crypto')
 const session = require('express-session');
 const User = require('./app/models/user.model')
-const SQLiteStore = require('connect-sqlite3')(session);
 const methodOverride = require('method-override')
 const MongoStore = require("connect-mongo")
 const flash = require('connect-flash')
-const multer  = require('multer')
-const upload = multer({ dest: 'uploads/' })
-
-
-passport.use(new LocalStrategy(User.authenticate()))
+const cookieParser = require('cookie-parser');
 
 const app = express()
 
@@ -40,7 +35,6 @@ let corsOptions = {
 };
 
 app.use(cors(corsOptions))
-
 app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }));
@@ -73,6 +67,7 @@ const sessionConfig = {
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }
+app.use(cookieParser())
 app.use(session(sessionConfig))
 app.use(flash());
 app.use(passport.initialize())
@@ -80,8 +75,35 @@ app.use(passport.session())
 
 passport.use(new LocalStrategy(User.authenticate()))
 
-passport.serializeUser(User.serializeUser())
-passport.deserializeUser(User.deserializeUser())
+passport.serializeUser(function(user, done) {
+  done(null, user._id);
+})
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+})
+
+// passport.use(new LocalStrategy(
+//   function(username, password, done) {
+//     User.findOne({ username: username }, function (err, user) {
+//       if (err) { return done(err); }
+//       if (!user) { return done(null, false); }
+//       if (!comparePasswords(user.password, password)) { return done(null, false); }
+//       return done(null, user);
+//     }); 
+//   }
+// ))
+
+// passport.serializeUser(function(user, done) {
+//   done(null, user.id);
+// });
+
+// passport.deserializeUser(function(id, done) {
+//   User.findById(id, function (err, user) {
+//     done(err, user);
+//   });
+// });
 
 const listingRoutes = require("./app/routes/listing.routes");
 const commentRoutes = require("./app/routes/comment.routes");

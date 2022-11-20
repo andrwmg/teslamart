@@ -35,7 +35,6 @@ exports.create = (req, res) => {
   listing
     .save()
     .then(data => {
-      console.log(data._id.toString())
       res.send({id: data._id.toString(), message:'Listing created successfully', messageStatus: 'success'});
     })
     .catch(err => {
@@ -49,7 +48,6 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   // const title = req.query.title;
   // var condition = title ? { title: { $regex: new RegExp(title), $options: "i" } } : {};
-  console.log(req.user)
   Listing.find()
     .populate('author')
     .populate('images')
@@ -87,13 +85,11 @@ exports.update = (req, res) => {
         message: "Data to update can not be empty!", messageStatus: 'error'
       });
     }
-  
+
     const {id} = req.params;
-    console.log('Updating..')
   
     Listing.findByIdAndUpdate(id, req.body)
       .then(data => {
-        console.log(data)
         if (!data) {
           res.status(404).send({
             message: `Cannot update Listing with id=${id}. Maybe Listing was not found!`, messageStatus: 'error'
@@ -109,7 +105,6 @@ exports.update = (req, res) => {
 
 exports.delete = (req, res) => {
   const id = req.params.id;
-  console.log('Delete this!')
   Listing.findByIdAndRemove(id)
     .then(data => {
       if (!data) {

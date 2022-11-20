@@ -17,12 +17,20 @@ exports.register = async (req, res) => {
        
     }
     catch (e) {
+        if (e.message.includes('E11000')) {
+            res.send({message: 'A user with the given email is already registered', messageStatus: 'error'})
+        } else{
         res.send({message: e.message, messageStatus:'error'});
-    }
+    }}
 }
 
-exports.login =  ((req, res, next) => {
-    res.send({user: req.user, message:'Welcome back!', messageStatus:'success'})
+exports.login =  ((req, res, err) => {
+    console.log(err)
+    if (err) {
+        res.send({ message: err.message, messageStatus:'error'})
+    } else {
+    res.send({user: req.user, message:'Welcome back to Tesla Mart!', messageStatus:'success'})
+    }
  })
  
 
