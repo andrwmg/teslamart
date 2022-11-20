@@ -26,7 +26,6 @@ db.mongoose
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
-  // "https://teslamartv2.herokuapp.com",
 
 let corsOptions = {
   origin: 
