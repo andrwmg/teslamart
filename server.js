@@ -29,8 +29,8 @@ db.mongoose
 
 let corsOptions = {
   origin: 
-  // "https://teslamartv2.herokuapp.com/",
-  "http://localhost:8081",
+  "https://teslamartv2.herokuapp.com/",
+  // "http://localhost:8081",
   credentials: true
 };
 
