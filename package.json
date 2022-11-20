@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "homepage": "https://teslamartv2.herokuapp.com",
   "scripts": {
     "start": "node server.js",
     "test": "cd client && npm start",
