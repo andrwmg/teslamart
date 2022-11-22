@@ -7,15 +7,18 @@ const Listing = db.listings
 
 exports.create = (req, res) => {
   // Validate request
-  if (!req.body.title) {
-    res.status(400).send({ message: "Content can not be empty!", messageStatus:'error' });
-    return;
-  }
+  // if (!req.body.title) {
+  //   res.status(400).send({ message: "Content can not be empty!", messageStatus:'error' });
+  //   return;
+  // }
 
   // Create a Tutorial
   const { model, year, trim, interior, exterior, autopilot, mileage, condition, title, location, price, description, author, images } = req.body
-  const listing = new Listing({
-    images:images || [],
+  console.log(req.body.images)
+  console.log(req.body)
+  const newListing = new Listing(
+    // req.body
+    {
     model: model,
     year: year,
     trim: trim,
@@ -29,10 +32,12 @@ exports.create = (req, res) => {
     price: price,
     description: description,
     author: author,
-    comments: []
-  });
+    comments: [],
+    images: images
+  }
+  );
   // Save Listings in the database
-  listing
+  newListing
     .save()
     .then(data => {
       res.send({id: data._id.toString(), message:'Listing created successfully', messageStatus: 'success'});
@@ -40,7 +45,8 @@ exports.create = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Listing."
+          err.message || "Some error occurred while creating the Listing.",
+          messageStatus:'error'
       });
     });
 };

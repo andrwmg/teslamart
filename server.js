@@ -34,6 +34,7 @@ let corsOptions = {
   "http://localhost:8081",
   credentials: true
 };
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(cors(corsOptions))
 app.use(express.json())
