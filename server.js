@@ -92,7 +92,7 @@ const userRoutes = require("./app/routes/user.routes");
 
 app.use('/data', userRoutes)
 app.use('/data/listings', listingRoutes)
-app.use('/data/listings/:id/comments', commentRoutes)
+app.use('/data/listings', commentRoutes)
 
 app.get('/api', (req,res) => {
   res.json({

@@ -19,34 +19,34 @@ exports.create = (req, res) => {
   const newListing = new Listing(
     // req.body
     {
-    model: model,
-    year: year,
-    trim: trim,
-    interior: interior,
-    exterior: exterior,
-    autopilot: autopilot,
-    mileage: mileage,
-    condition: condition,
-    title: title,
-    location: location,
-    price: price,
-    description: description,
-    author: author,
-    comments: [],
-    images: images
-  }
+      model: model,
+      year: year,
+      trim: trim,
+      interior: interior,
+      exterior: exterior,
+      autopilot: autopilot,
+      mileage: mileage,
+      condition: condition,
+      title: title,
+      location: location,
+      price: price,
+      description: description,
+      author: author,
+      comments: [],
+      images: images
+    }
   );
   // Save Listings in the database
   newListing
     .save()
     .then(data => {
-      res.send({id: data._id.toString(), message:'Listing created successfully', messageStatus: 'success'});
+      res.send({ id: data._id.toString(), message: 'Listing created successfully', messageStatus: 'success' });
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Listing.",
-          messageStatus:'error'
+        messageStatus: 'error'
       });
     });
 };
@@ -57,6 +57,12 @@ exports.findAll = (req, res) => {
   Listing.find()
     .populate('author')
     .populate('images')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'author'
+      }
+    })
     .then(data => {
       res.send(data)
     })
@@ -71,11 +77,17 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
   const id = req.params.id;
   Listing.findById(id)
-  .populate('author')
-  .populate('images')
+    .populate('author')
+    .populate('images')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'author'
+      }
+    })
     .then(data => {
       if (!data) {
-        res.status(404).send({ message: "Not found Listing with id " + id , messageStatus: 'error'});
+        res.status(404).send({ message: "Not found Listing with id " + id, messageStatus: 'error' });
       } else res.send(data);
     })
     .catch(err => {
@@ -86,27 +98,27 @@ exports.findOne = (req, res) => {
 };
 
 exports.update = (req, res) => {
-    if (!req.body) {
-      return res.status(400).send({
-        message: "Data to update can not be empty!", messageStatus: 'error'
-      });
-    }
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Data to update can not be empty!", messageStatus: 'error'
+    });
+  }
 
-    const {id} = req.params;
-  
-    Listing.findByIdAndUpdate(id, req.body)
-      .then(data => {
-        if (!data) {
-          res.status(404).send({
-            message: `Cannot update Listing with id=${id}. Maybe Listing was not found!`, messageStatus: 'error'
-          });
-        } else res.send({ message: "Listing was updated successfully.", messageStatus:'success' });
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating Listing with id=" + id, messageStatus: 'error'
+  const { id } = req.params;
+
+  Listing.findByIdAndUpdate(id, req.body)
+    .then(data => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot update Listing with id=${id}. Maybe Listing was not found!`, messageStatus: 'error'
         });
+      } else res.send({ message: "Listing was updated successfully.", messageStatus: 'success' });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error updating Listing with id=" + id, messageStatus: 'error'
       });
+    });
 }
 
 exports.delete = (req, res) => {
@@ -116,7 +128,7 @@ exports.delete = (req, res) => {
       if (!data) {
         res.status(404).send({
           message: `Cannot delete Listing with id=${id}. Maybe Listing was not found!`,
-          messageStatus:'error'
+          messageStatus: 'error'
         });
       } else {
         res.send({
@@ -134,9 +146,9 @@ exports.delete = (req, res) => {
 
 exports.deleteAll = (req, res) => {
   Listing.deleteMany({})
-  .then(()=> {
-    res.send({message: 'You just done deleted all them listings', messageStatus:'success'})
-  })
+    .then(() => {
+      res.send({ message: 'You just done deleted all them listings', messageStatus: 'success' })
+    })
 }
 
 exports.seed = (req, res) => {

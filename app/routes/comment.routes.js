@@ -1,9 +1,10 @@
-    const comments = require("../controllers/comment.controller.js");
+    const { isLoggedIn } = require("../../middleware.js");
+const comments = require("../controllers/comment.controller.js");
   
     const router = require("express").Router();
   
     // // Create a new Tutorial
-    // router.post("/", comments.create);
+    router.post("/:id/comments", isLoggedIn, comments.create);
   
     // // Retrieve all Tutorials
     // router.get("/", comments.findAll);
@@ -18,7 +19,7 @@
     // router.put("/:id", comments.update);
   
     // // Delete a Tutorial with id
-    // router.delete("/:id", comments.delete);
+    router.delete("/:id/comments/:commentId", isLoggedIn, comments.delete);
   
     // // Create a new Tutorial
     // router.delete("/", comments.deleteAll);
