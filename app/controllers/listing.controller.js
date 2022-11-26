@@ -79,8 +79,8 @@ exports.findOne = (req, res) => {
       path: 'comments',
       populate: {
         path: 'author'
-      }
-    })
+
+    }})
     .then(data => {
       if (!data) {
         res.status(404).send({ message: "Not found Listing with id " + id, messageStatus: 'error' });

@@ -7,7 +7,11 @@ const CommentSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
         ref: "User"
-    }
+    },
+    replies: [{
+        type: Schema.Types.ObjectId,
+        ref: "Comment"
+    }]
 },{timestamps: true} 
 )
 

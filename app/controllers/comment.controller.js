@@ -22,12 +22,43 @@ exports.create = async (req,res) => {
         res.send(data)
     })}
 
+    exports.reply = async (req,res) => {
+      const {commentId} = req.params
+      console.log(commentId)
+        const comment = await Comment.findById(commentId)
+        const reply = new Comment(req.body)
+        reply.author = req.user._id
+        comment.replies.unshift(reply)
+        await reply.save()
+        await comment.save()
+        await Comment.findById(commentId)
+        .populate({
+            path: 'replies',
+            populate: {
+              path: 'author',
+            }
+          })
+        .then((data) => {
+            res.send(data)
+        })}
+
 exports.findAll = (req,res) => {
 
 }
 
-exports.findOne = (req,res) => {
-    
+exports.findOne = async (req,res) => {
+  const {commentId} = req.params
+  console.log(commentId)
+  await Comment.findById(commentId)
+  .populate({
+    path: 'replies',
+    populate: {
+      path:'author'
+    }
+  })
+  .then((data) => {
+    res.send(data)
+})
 }
 
 exports.update = (req,res) => {

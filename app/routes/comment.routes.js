@@ -6,14 +6,17 @@ const comments = require("../controllers/comment.controller.js");
     // // Create a new Tutorial
     router.post("/:id/comments", isLoggedIn, comments.create);
   
+
+    router.post("/:id/comments/:commentId", isLoggedIn, comments.reply);
+
     // // Retrieve all Tutorials
-    // router.get("/", comments.findAll);
+    router.get("/:id/comments", comments.findAll);
   
     // // Retrieve all published Tutorials
     // router.get("/published", comments.findAllPublished);
   
     // // Retrieve a single Tutorial with id
-    // router.get("/:id", comments.findOne);
+    router.get("/:id/comments/:commentId", comments.findOne);
   
     // // Update a Tutorial with id
     // router.put("/:id", comments.update);
