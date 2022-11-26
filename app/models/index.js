@@ -9,5 +9,6 @@ db.url = dbConfig.url;
 db.listings = require("./listing.model.js");
 db.users = require("./user.model.js");
 db.comments = require("./comment.model.js");
+db.images = require("./image.model.js");
 
 module.exports = db;

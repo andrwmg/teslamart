@@ -15,17 +15,6 @@ const ImageSchema = new Schema ({
 
 const ListingSchema = new Schema ({
     images: [ImageSchema],
-//     geometry: {
-//         type: {
-//             type: String,
-//             enum: ['Point'],
-//             required: true
-//     },
-//     coordinates: {
-//         type: [Number],
-//         required: true
-//     }
-// },
     year: Number,
     model: {
         type: String,
@@ -78,12 +67,6 @@ const ListingSchema = new Schema ({
 {timestamps: true} 
 // ,opts
 )
-
-// ListingSchema.virtual('properties.popUpMarkup').get(function() {
-//     return `<strong><a href='/listings/${this._id}'>${this.year} ${this.model}</a></strong>
-//     <p>${this.location}</p>
-//     <p>$${this.price}</p>`
-// })
 
 ListingSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {
