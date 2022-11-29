@@ -3,8 +3,11 @@ const router = express.Router({ mergeParams: true });
 const passport = require('passport');
 const { isLoggedIn } = require('../../middleware');
 const users = require('../controllers/user.controller');
+const multer = require('multer')
+const {storage} = require('../cloudinary');
+const upload = multer({storage})
 
-router.post('/register', users.register)
+router.post('/register',  users.register)
 
 router.post('/login', 
 // passport.authenticate('local', 
@@ -27,8 +30,9 @@ router.post('/login',
     // users.login
 );
 
-router.get('/getUser', users.getUser)
+router.get('/getUser', isLoggedIn, users.getUser)
 
+router.put('/updateUser/:id',(req,res,next)=>{console.log('Here we go!'); next()}, users.updateUser)
 
 // router.post('/login', passport.authenticate('local'), users.login)
 

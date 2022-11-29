@@ -5,8 +5,8 @@ const User = db.users
 
 exports.register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        const user = new User({ email, username })
+        const { username, email, password, image } = req.body;
+        const user = new User({ email, username, image: image[0] })
         const registeredUser = await User.register(user, password)
         req.login(registeredUser, e => {
             if (e) { 
@@ -33,10 +33,31 @@ exports.login =  ((req, res, err) => {
  })
  
 
-exports.getUser = (req,res) => {
-    if(req.user) {
-        res.json(req.user)
+exports.getUser = async (req,res) => {
+    if (req.user){
+    const user = await User.findById(req.user._id)
+    res.send(user)
     }
+}
+
+exports.updateUser = async (req,res) =>{
+    const {id} = req.params
+const {_id} = req.user
+if (id === _id.toString()) {
+User.findByIdAndUpdate(id, req.body)
+.then(data => {
+  if (!data) {
+    res.status(404).send({
+      message: `Cannot update Profile with id=${id}. Maybe User was not found!`, messageStatus: 'error'
+    });
+  } else res.send({ message: "Profile was updated successfully.", messageStatus: 'success' });
+})
+.catch(err => {
+  res.status(500).send({
+    message: "Error updating Profile with id=" + id, messageStatus: 'error'
+  });
+});
+}
 }
 
 exports.logout = (req,res)=> {

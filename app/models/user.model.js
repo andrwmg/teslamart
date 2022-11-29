@@ -11,7 +11,7 @@ const ImageSchema = new Schema ({
 })
 
 const UserSchema = new Schema ({
-    // avatar: {ImageSchema, default: 'https://res.cloudinary.com/deuft4auk/image/upload/v1661937003/Tesla/0x0-Model3_01_tmcgma.jpg'},
+    image: ImageSchema,
     email: {
         type: String,
         required: true,
