@@ -39,11 +39,15 @@ exports.getUser = async (req, res) => {
         const user = await User.findById(req.user._id)
         .populate({
             path: 'inbox',
-            populate: { path: 'to', path:'from' }
+            populate: [
+                {path: 'to'}, {path:'from'}
+            ]
           })
           .populate({
             path: 'outbox',
-            populate: { path: 'to', path:'from' }
+            populate: [
+                {path: 'to'}, {path:'from'}
+            ]
           })
         res.send(user)
     }
