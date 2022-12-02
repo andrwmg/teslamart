@@ -10,6 +10,18 @@ const ImageSchema = new Schema ({
     filename: String
 })
 
+const MessageSchema = new Schema ({
+    to: { 
+        type: Schema.Types.ObjectId,
+    ref: 'User'},
+    from: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    body: String,
+    read: false
+},{timestamps: true})
+
 const UserSchema = new Schema ({
     image: ImageSchema,
     email: {
@@ -17,6 +29,8 @@ const UserSchema = new Schema ({
         required: true,
         unique: true
     },
+    inbox: [MessageSchema],
+    outbox: [MessageSchema]
     // favorites: [{
     //     type: Schema.Types.ObjectId,
     //     ref: 'Listing'

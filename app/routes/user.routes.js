@@ -32,7 +32,9 @@ router.post('/login',
 
 router.get('/getUser', isLoggedIn, users.getUser)
 
-router.put('/updateUser/:id',(req,res,next)=>{console.log('Here we go!'); next()}, users.updateUser)
+router.put('/updateUser/:id', users.updateUser)
+
+router.put('/messages/:fromId/:toId',(req,res,next)=>{console.log('Here we go!'); next()}, isLoggedIn, users.sendMessage)
 
 // router.post('/login', passport.authenticate('local'), users.login)
 
