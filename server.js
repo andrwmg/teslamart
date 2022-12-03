@@ -27,8 +27,12 @@ db.mongoose
     process.exit();
   });
 
+// const origin = window.location.hostname === 'localhost' ? "http://localhost:8081" :  "https://teslamartv2backend.herokuapp.com"
+
 let corsOptions = {
   origin: 
+  // origin,
+
     // "https://teslamartv2.herokuapp.com",
     "https://teslamartv2backend.herokuapp.com",
   // "http://localhost:8081",
