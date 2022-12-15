@@ -13,7 +13,7 @@ const ImageSchema = new Schema ({
 const MessageSchema = new Schema ({
     to: { 
         type: Schema.Types.ObjectId,
-    ref: 'User'},
+        ref: 'User'},
     from: {
         type: Schema.Types.ObjectId,
         ref: 'User'
