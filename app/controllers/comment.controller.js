@@ -1,7 +1,6 @@
 const db = require('../models/index.js')
 const Comment = db.comments
 const Listing = db.listings
-// const { cloudinary } = require('../cloudinary')
 
 exports.create = async (req,res) => {
   const {id} = req.params

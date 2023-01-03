@@ -37,18 +37,18 @@ exports.login = ((req, res, err) => {
 exports.getUser = async (req, res) => {
     if (req.user) {
         const user = await User.findById(req.user._id)
-        .populate({
-            path: 'inbox',
-            populate: [
-                {path: 'to'}, {path:'from'}
-            ]
-          })
-          .populate({
-            path: 'outbox',
-            populate: [
-                {path: 'to'}, {path:'from'}
-            ]
-          })
+            .populate({
+                path: 'inbox',
+                populate: [
+                    { path: 'to' }, { path: 'from' }
+                ]
+            })
+            .populate({
+                path: 'outbox',
+                populate: [
+                    { path: 'to' }, { path: 'from' }
+                ]
+            })
         res.send(user)
     }
 }
@@ -76,7 +76,7 @@ exports.updateUser = async (req, res) => {
 exports.sendMessage = async (req, res) => {
     const { fromId, toId } = req.params
     if (fromId === toId) {
-        res.send({message: 'This is your listing! Cannot message yourself', messageStatus: 'error'})
+        res.send({ message: 'This is your listing! Cannot message yourself', messageStatus: 'error' })
     }
     const { _id } = req.user
     console.log(fromId, toId)
