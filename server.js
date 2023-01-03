@@ -29,18 +29,31 @@ db.mongoose
 
 // const origin = window.location.hostname === 'localhost' ? "http://localhost:8081" :  "https://teslamartv2backend.herokuapp.com"
 
-let corsOptions = {
-  origin: 
-  // origin,
-
-    // "https://teslamartv2.herokuapp.com",
-    // "https://teslamartv2backend.herokuapp.com",
-  "http://localhost:8081",
+const whitelist = ["https://teslamartv2.herokuapp.com", "https://teslamartv2backend.herokuapp.com", "http://localhost:8080", "http://localhost:8081" 
+]
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true
-};
+}
+
+// let corsOptions = {
+//   origin: 
+//   // origin,
+
+//     // "https://teslamartv2.herokuapp.com",
+//     // "https://teslamartv2backend.herokuapp.com",
+//   "http://localhost:8081",
+//   credentials: true
+// };
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.use(cors(corsOptions))
+// app.use(cors(corsOptions))
 app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }));
@@ -104,7 +117,7 @@ app.get('/api', (req,res) => {
   })
 })
 
-app.get('/*', (req,res)=> {
+app.get('/*', cors(corsOptions), (req,res,next) => {
   res.sendFile(path.join(__dirname, 'build','index.html'))
 })
 
