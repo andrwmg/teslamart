@@ -341,7 +341,7 @@ exports.reset = async (req, res) => {
     try {
         const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }).select("+salt +hash");
         if (!user) {
-            return res.send({ message: '2Password reset token is invalid or has expired', messageStatus: 'error' });
+            return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
         } else {
 
             // user.changePassword(password, password, (err) => {
@@ -357,16 +357,16 @@ exports.reset = async (req, res) => {
                 bcrypt.hash(password, salt, (err, hash) => {
                     if (err) {
                         console.log(err)
-                        return res.send({ message: '3Password reset token is invalid or has expired', messageStatus: 'error' });
+                        return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
                     }
                     user.password = hash;
                     user.resetPasswordToken = null;
                     user.resetPasswordExpires = null;
                     user.save((err) => {
                         if (!err) {
-                            return res.send({ message: '4Password reset successful', messageStatus: 'success' });
+                            return res.send({ message: 'Password reset successful', messageStatus: 'success' });
                         } else {
-                            return res.send({ message: '5Password reset failed', messageStatus: 'error' });
+                            return res.send({ message: 'Password reset failed', messageStatus: 'error' });
                         }
                     })
                 })
@@ -397,16 +397,16 @@ exports.resetTwo = async (req, res) => {
                 bcrypt.hash(password, salt, (err, hash) => {
                     if (err) {
                         console.log(err)
-                        return res.send({ message: '3Password reset token is invalid or has expired', messageStatus: 'error' });
+                        return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
                     }
                     user.password = hash;
                     user.resetPasswordToken = null;
                     user.resetPasswordExpires = null;
                     user.save((err) => {
                         if (!err) {
-                            return res.send({ message: '4Password reset successful', messageStatus: 'success' });
+                            return res.send({ message: 'Password reset successful', messageStatus: 'success' });
                         } else {
-                            return res.send({ message: '5Password reset failed', messageStatus: 'error' });
+                            return res.send({ message: 'Password reset failed', messageStatus: 'error' });
                         }
                     })
                 })
