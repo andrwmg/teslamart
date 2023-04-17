@@ -428,7 +428,7 @@ exports.updateUser = async (req, res) => {
             message: "Error updating Profile with id=" + id, messageStatus: 'error'
         })
     } else {
-        const user = await User.findByIdAndUpdate(id, req.body)
+        const user = await User.findByIdAndUpdate(id, req.body, { returnOriginal: false, new: true })
         if (!user) {
             res.status(404).send({
                 message: `Cannot update Profile with id=${id}. Maybe User was not found!`, messageStatus: 'error'
