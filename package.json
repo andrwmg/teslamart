@@ -1,0 +1,43 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "test": "cd client && npm start",
+    "server": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
+    "bcrypt": "^5.1.0",
+    "cloudinary": "^1.32.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^4.6.0",
+    "connect-sqlite3": "^0.9.13",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "global": "^4.4.0",
+    "method-override": "^3.0.0",
+    "mongodb": "^4.11.0",
+    "mongoose": "^6.7.2",
+    "multer": "^1.4.5-lts.1",
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^6.9.1",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^7.1.2",
+    "sendgrid": "^5.2.3"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
+}
