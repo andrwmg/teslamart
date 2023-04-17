@@ -6,6 +6,7 @@ const sgMail = require('@sendgrid/mail');
 const bcrypt = require('bcrypt')
 
 const sgAPI = process.env.SENDGRID_API_KEY
+const sgSMTP = process.env.SENDGRID_SMTP
 const sgUser = process.env.SENDGRID_USERNAME
 const sgPassword = process.env.SENDGRID_PASSWORD
 
@@ -20,7 +21,7 @@ exports.register = async (req, res) => {
         const registeredUser = await User.register(user, password)
 
         const transporter = nodemailer.createTransport({
-            host: 'smtp.sendgrid.net',
+            host: sgSMTP,
             port: 587,
             auth: {
                 user: sgUser,
