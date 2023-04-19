@@ -12,60 +12,37 @@ const sgPassword = process.env.SENDGRID_PASSWORD
 
 sgMail.setApiKey(sgAPI)
 
-exports.register = async (req, res) => {
-    const { username, email, password, image } = req.body;
-    try {
-        const user = new User({ email, username, image: image[0] })
-        const token = user.generateVerificationToken();
+async function sendToken(userEmail, verificationToken, type) {
 
-        const registeredUser = await User.register(user, password)
+    let subject = null
+    let text = null
 
-        const transporter = nodemailer.createTransport({
-            host: sgSMTP,
-            port: 587,
-            auth: {
-                user: sgUser,
-                password: sgPassword
-            }
-        })
+    const baseURL = process.env.LOCAL ? 'http:\/\/localhost:8081' : 'https:\/\/www.teslamartv2test.herokuapp.com'
 
-        const mailOptions = {
-            to: registeredUser.email,
-            from: sgUser,
-            subject: 'Tesla Mart Account Verification Token',
-            text: `Please verify your new Tesla Mart account by clicking the link: \nhttp:\/\/localhost:8081\/verify\/${token}\n`
-        }
-
-        sgMail.send(mailOptions, (error, result) => {
-            if (error) {
-                res.status(500).json({ message: 'Failed to send verification email', messageStatus: 'error' })
-            } else {
-                res.status(200).json({ message: 'Verification email sent', messageStatus: 'success' })
-            }
-        })
-
-        // req.login(registeredUser, e => {
-        //     if (e) {
-        //         res.send({ message: e.message, messageStatus: 'error' })
-        //     }
-        // })
-        // res.send({ user: registeredUser, message: 'Registration successful! Welcome to Tesla Mart!', messageStatus: 'success' })
-
+    if (type === 'verify') {
+        subject = 'Tesla Mart Account Verification Token'
+        text = `Please verify your new Tesla Mart account by clicking the link: \n${baseURL}\/verify\/${verificationToken}\n`
+    } else {
+        subject = 'Tesla Mart Password Reset Token'
+        text = `Please reset your Tesla Mart password by clicking the link: \n${baseURL}\/reset\/${verificationToken}\n`
     }
-    catch (e) {
-        if (e.message.includes('E11000')) {
-            res.send({ message: 'Failed to register user', messageStatus: 'error' })
-        } else {
-            res.send({ message: e.message, messageStatus: 'error' });
-        }
+
+    const mailOptions = {
+        to: userEmail,
+        from: sgUser,
+        subject,
+        text
     }
+
+    sgMail.send(mailOptions)
+
 }
 
-exports.registerTwo = async (req, res, err) => {
+exports.register = async (req, res, err) => {
     const { email, username, password, image } = req.body
 
     try {
-        const existingUser = await User.find({ username: username })
+        const existingUser = await User.find({ $or: [{ username }, { email }] })
         console.log(existingUser.length)
         if (existingUser.length) {
             res.send({ message: 'Username or email are already taken', messageStatus: 'error' });
@@ -81,29 +58,9 @@ exports.registerTwo = async (req, res, err) => {
 
             user.save()
 
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.sendgrid.net',
-                port: 587,
-                auth: {
-                    user: sgUser,
-                    password: sgPassword
-                }
-            })
+            sendToken(user.email, user.verificationToken, 'verify')
 
-            const mailOptions = {
-                to: user.email,
-                from: sgUser,
-                subject: 'Tesla Mart Account Verification Token',
-                text: `Please verify your new Tesla Mart account by clicking the link: \nhttp:\/\/localhost:8081\/verify\/${token}\n`
-            }
-
-            sgMail.send(mailOptions, (error, result) => {
-                if (error) {
-                    res.status(500).json({ message: 'Failed to send verification email', messageStatus: 'error' })
-                } else {
-                    res.status(200).json({ message: 'Verification email sent', messageStatus: 'success' })
-                }
-            })
+            res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
         }
     }
     catch (e) {
@@ -127,17 +84,6 @@ exports.verify = async (req, res, err) => {
                     res.send({ message: 'Account verified', messageStatus: 'success' });
                 }
             })
-        // console.log(user)
-        // if (!user) {
-        //     // res.send({ message: 'Invalid verification token', messageStatus: 'error' });
-        //     // return;
-        //     console.log("Nobody")
-        // } else {
-        //     user.isVerified = true;
-        //     user.verificationToken = null;
-        //     // await user.save()
-        //     res.send({ message: 'Account verified', messageStatus: 'success' });
-        // }
     }
     catch (err) {
         console.log(err)
@@ -146,47 +92,6 @@ exports.verify = async (req, res, err) => {
 }
 
 exports.resend = async (req, res, err) => {
-    const { email } = req.body
-    try {
-        const user = await User.findOne(email)
-        if (!user) {
-            return res.send({ message: 'Could not find account', messageStatus: 'error' })
-        }
-        const token = user.generateVerificationToken()
-
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            auth: {
-                user: sgUser,
-                password: sgPassword
-            }
-        })
-
-        const mailOptions = {
-            to: user.email,
-            from: sgUser,
-            subject: 'Tesla Mart Account Verification Token',
-            text: `Please verify your new Tesla Mart account by clicking the link: \nhttp:\/\/localhost:8081\/verify\/${token}\n`
-        }
-
-        sgMail.send(mailOptions, (error, result) => {
-            if (error) {
-                res.status(500).json({ message: 'Failed to resend verification email', messageStatus: 'error' })
-            } else {
-                res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
-            }
-        })
-    } catch (e) {
-        if (e.message.includes('E11000')) {
-            res.send({ message: 'Failed to register user', messageStatus: 'error' })
-        } else {
-            res.send({ message: e.message, messageStatus: 'error' });
-        }
-    }
-}
-
-exports.resendTwo = async (req, res, err) => {
     const { username, password } = req.body
     try {
         const user = await User.findOne({ username })
@@ -203,30 +108,12 @@ exports.resendTwo = async (req, res, err) => {
 
         const token = user.generateVerificationToken()
 
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.sendgrid.net',
-            port: 587,
-            auth: {
-                user: sgUser,
-                password: sgPassword
-            }
-        })
+        user.save()
 
-        const mailOptions = {
-            to: user.email,
-            from: sgUser,
-            subject: 'Tesla Mart Account Verification Token',
-            text: `Please verify your new Tesla Mart account by clicking the link: \nhttp:\/\/localhost:8081\/verify\/${token}\n`
-        }
+        sendToken(user.email, user.verificationToken, 'verify')
 
-        sgMail.send(mailOptions, (error, result) => {
-            if (error) {
-                res.status(500).json({ message: 'Failed to resend verification email', messageStatus: 'error' })
-            } else {
-                res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
-            }
+        res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
 
-        })
     } catch (e) {
         if (e.message.includes('E11000')) {
             res.send({ message: 'Failed to register user', messageStatus: 'error' })
@@ -236,15 +123,7 @@ exports.resendTwo = async (req, res, err) => {
     }
 }
 
-exports.login = ((req, res, err) => {
-    if (err) {
-        res.send({ message: err.message, messageStatus: 'error' })
-    } else {
-        res.send({ user: req.user, message: 'Welcome back to Tesla Mart!', messageStatus: 'success' })
-    }
-})
-
-exports.loginTwo = async (req, res, err) => {
+exports.login = async (req, res, err) => {
     const { username, password } = req.body
     try {
         const user = await User.findOne({ username });
@@ -305,29 +184,10 @@ exports.forgot = async (req, res, err) => {
                 console.log(err)
             })
 
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.sendgrid.net',
-                port: 587,
-                auth: {
-                    user: sgUser,
-                    password: sgPassword
-                }
-            })
+            sendToken(user.email, user.resetPasswordToken, 'reset')
 
-            const mailOptions = {
-                to: user.email,
-                from: sgUser,
-                subject: 'Tesla Mart Reset Password Token',
-                text: `Please reset your Tesla Mart account password by clicking the link: \nhttp:\/\/localhost:8081\/reset\/${token}\n`
-            }
+            res.status(200).json({ message: 'Reset token resent', messageStatus: 'success' })
 
-            sgMail.send(mailOptions, (error, result) => {
-                if (error) {
-                    res.status(500).json({ message: 'Failed to send reset password email', messageStatus: 'error' })
-                } else {
-                    res.status(200).json({ message: 'Reset password email has been sent', messageStatus: 'success' })
-                }
-            })
         }
     } catch (err) {
         console.log(err)
@@ -335,43 +195,16 @@ exports.forgot = async (req, res, err) => {
     }
 }
 
-exports.reset = async (req, res) => {
+exports.setToken = async (req, res) => {
     const { token } = req.params
-    const { password, confirm } = req.body
 
     try {
-        const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }).select("+salt +hash");
+        const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
         if (!user) {
-            return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
+            res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
         } else {
-
-            // user.changePassword(password, password, (err) => {
-            //     if (err) {
-            //         return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
-            //     } else {
-            const saltRounds = 10;
-
-            bcrypt.genSalt(saltRounds, (err, salt) => {
-                if (err) {
-                    return next(err);
-                } else { }
-                bcrypt.hash(password, salt, (err, hash) => {
-                    if (err) {
-                        console.log(err)
-                        return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
-                    }
-                    user.password = hash;
-                    user.resetPasswordToken = null;
-                    user.resetPasswordExpires = null;
-                    user.save((err) => {
-                        if (!err) {
-                            return res.send({ message: 'Password reset successful', messageStatus: 'success' });
-                        } else {
-                            return res.send({ message: 'Password reset failed', messageStatus: 'error' });
-                        }
-                    })
-                })
-            })
+            req.session.token = token
+            res.send({ message: 'Token accepted. Reset password now', messageStatus: 'success' })
         }
     }
     catch (err) {
@@ -380,8 +213,8 @@ exports.reset = async (req, res) => {
     }
 }
 
-exports.resetTwo = async (req, res) => {
-    const { token } = req.params
+exports.reset = async (req, res) => {
+    const { token } = req.session
     const { password } = req.body
 
     try {
@@ -470,22 +303,7 @@ exports.sendMessage = async (req, res) => {
     }
 }
 
-exports.logout = (req, res) => {
-    try {
-        req.logout(err => {
-            if (!err) {
-                res.send({ message: 'Successfully logged out', messageStatus: 'success' })
-            } else {
-                res.send({ message: e.message, messageStatus: 'error' })
-            }
-        })
-    } catch (e) {
-        res.send({ message: e.message, messageStatus: 'error' })
-    }
-    // res.send(req.user)
-}
-
-exports.logoutTwo = (req, res, err) => {
+exports.logout = (req, res, err) => {
     try {
         req.session.destroy();
         res.send({ message: 'Successfully logged out', messageStatus: 'success' })

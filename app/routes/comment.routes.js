@@ -4,10 +4,10 @@ const comments = require("../controllers/comment.controller.js");
     const router = require("express").Router();
   
     // // Create a new Tutorial
-    router.post("/:id/comments", isLoggedInTwo, comments.create);
+    router.post("/:id/comments", isLoggedIn, comments.create);
   
 
-    router.post("/:id/comments/:commentId", isLoggedInTwo, comments.reply);
+    router.post("/:id/comments/:commentId", isLoggedIn, comments.reply);
 
     // // Retrieve all Tutorials
     router.get("/:id/comments", comments.findAll);
@@ -22,7 +22,7 @@ const comments = require("../controllers/comment.controller.js");
     // router.put("/:id", comments.update);
   
     // // Delete a Tutorial with id
-    router.delete("/:id/comments/:commentId", isLoggedInTwo, comments.delete);
+    router.delete("/:id/comments/:commentId", isLoggedIn, comments.delete);
   
     // // Create a new Tutorial
     // router.delete("/", comments.deleteAll);

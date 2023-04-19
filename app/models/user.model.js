@@ -21,7 +21,9 @@ const MessageSchema = new Schema({
         ref: 'User'
     },
     body: String,
-    read: false
+    read: {type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 const UserSchema = new Schema({
