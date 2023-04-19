@@ -39,7 +39,10 @@ async function sendToken(userEmail, verificationToken, type) {
 }
 
 exports.register = async (req, res, err) => {
-    const { email, username, password, image } = req.body
+    let { email, username } = req.body
+    const { password, image } = req.body
+    email = email.toLowerCase()
+    username = username.toLowerCase()
 
     try {
         const existingUser = await User.find({ $or: [{ username }, { email }] })
@@ -92,7 +95,10 @@ exports.verify = async (req, res, err) => {
 }
 
 exports.resend = async (req, res, err) => {
-    const { username, password } = req.body
+    let { username } = req.body
+    const { password } = req.body
+    username = username.toLowerCase() 
+    
     try {
         const user = await User.findOne({ username })
         if (!user) {
@@ -124,7 +130,10 @@ exports.resend = async (req, res, err) => {
 }
 
 exports.login = async (req, res, err) => {
-    const { username, password } = req.body
+    let { username } = req.body
+    const { password } = req.body
+    username = username.toLowerCase()
+
     try {
         const user = await User.findOne({ username });
         if (!user) {
@@ -168,8 +177,9 @@ exports.getUser = async (req, res, err) => {
 }
 
 exports.forgot = async (req, res, err) => {
-    const { email } = req.body
-
+    let { email} = req.body
+    email = email.toLowerCase()
+    
     try {
         const user = await User.findOne({ email })
         if (!user) {
