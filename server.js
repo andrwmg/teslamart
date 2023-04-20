@@ -2,11 +2,7 @@ const express = require('express')
 const path = require('path');
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const passport = require('passport')
-const LocalStrategy = require('passport-local')
-const crypto = require('crypto')
 const session = require('express-session');
-const User = require('./app/models/user.model')
 const methodOverride = require('method-override')
 const MongoStore = require("connect-mongo")
 const flash = require('connect-flash')
@@ -80,19 +76,6 @@ const sessionConfig = {
 app.use(cookieParser())
 app.use(session(sessionConfig))
 app.use(flash());
-app.use(passport.initialize())
-app.use(passport.session())
-
-passport.use(new LocalStrategy(User.authenticate()))
-
-passport.serializeUser(function(user, done) {
-  done(null, user._id);
-})
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-})
 
 app.options('*', cors())
 

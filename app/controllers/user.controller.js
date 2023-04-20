@@ -39,80 +39,81 @@ async function sendToken(userEmail, verificationToken, type) {
 }
 
 exports.register = async (req, res, err) => {
-    let { email, username } = req.body
-    const { password, image } = req.body
-    if (email && username) {
-        email = email.toLowerCase()
-        username = username.toLowerCase()
-    }
-
     try {
-        const existingUser = await User.find({ $or: [{ username }, { email }] })
-        console.log(existingUser.length)
-        if (existingUser.length) {
-            res.send({ message: 'Username or email are already taken', messageStatus: 'error' });
-            return;
-        } else {
+        let { email, username } = req.body
 
-            const user = new User({ email, username, image: image[0] })
-            const token = user.generateVerificationToken();
-
-            const salt = await bcrypt.genSalt(10);
-            const hash = await bcrypt.hash(password, salt);
-            user.password = hash;
-
-            user.save()
-
-            sendToken(user.email, user.verificationToken, 'verify')
-
-            res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
+        const { password, image } = req.body
+        if (email && username) {
+            email = email.toLowerCase()
+            username = username.toLowerCase()
         }
+
+        const existingUser = await User.find({ $or: [{ username }, { email }] })
+        console.log(existingUser)
+        if (existingUser) {
+            res.status(400).json({ message: 'Username or email are already taken', messageStatus: 'error' });
+            return
+        }
+
+        const user = new User({ email, username, image: image[0] })
+        const token = user.generateVerificationToken();
+
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+        user.password = hash;
+
+        user.save()
+
+        sendToken(user.email, user.verificationToken, 'verify')
+
+        res.status(200).json({ message: 'Verification email resent', messageStatus: 'success' })
     }
     catch (e) {
         if (e.message.includes('E11000')) {
-            res.send({ message: 'Failed to register user', messageStatus: 'error' })
+            res.status(400).send({ message: 'Failed to register user', messageStatus: 'error' })
         } else {
-            res.send({ message: e.message, messageStatus: 'error' });
+            res.status(400).send({ message: e.message, messageStatus: 'error' });
         }
     }
 }
 
 exports.verify = async (req, res, err) => {
-    const { token } = req.params
-
     try {
+        const { token } = req.params
+
         await User.findOneAndUpdate({ verificationToken: token }, { isVerified: true, verificationToken: null })
             .then(data => {
                 if (!data) {
-                    res.send({ message: 'Invalid verification token', messageStatus: 'error' });
+                    res.status(404).send({ message: 'Invalid verification token', messageStatus: 'error' });
                 } else {
-                    res.send({ message: 'Account verified', messageStatus: 'success' });
+                    res.status(200).send({ message: 'Account verified', messageStatus: 'success' });
                 }
             })
     }
     catch (err) {
         console.log(err)
-        res.send({ message: 'Failed to verify account', messageStatus: 'error' });
+        res.status(400).send({ message: 'Failed to verify account', messageStatus: 'error' });
     }
 }
 
 exports.resend = async (req, res, err) => {
-    let { username } = req.body
-    const { password } = req.body
-    if (username) {
-        username = username.toLowerCase()
-    }    
     try {
+        let { username } = req.body
+        const { password } = req.body
+        if (username) {
+            username = username.toLowerCase()
+        }
+
         const user = await User.findOne({ username })
         if (!user) {
-            return res.send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            return res.send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
         }
         if (user.isVerified) {
-            return res.send({ message: 'Account is already verified', messageStatus: 'error' });
+            return res.status(400).send({ message: 'Account is already verified', messageStatus: 'error' });
         }
 
         const token = user.generateVerificationToken()
@@ -125,71 +126,78 @@ exports.resend = async (req, res, err) => {
 
     } catch (e) {
         if (e.message.includes('E11000')) {
-            res.send({ message: 'Failed to register user', messageStatus: 'error' })
+            res.status(400).send({ message: 'Failed to register user', messageStatus: 'error' })
         } else {
-            res.send({ message: e.message, messageStatus: 'error' });
+            res.status(400).send({ message: e.message, messageStatus: 'error' });
         }
     }
 }
 
 exports.login = async (req, res, err) => {
-    let { username } = req.body
-    const { password } = req.body
-    if (username) {
-        username = username.toLowerCase()
-    }
     try {
+        let { username } = req.body
+        const { password } = req.body
+        if (username) {
+            username = username.toLowerCase()
+        }
         const user = await User.findOne({ username });
         if (!user) {
-            return res.send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            return res.send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
         }
         if (!user.isVerified) {
-            return res.send({ message: 'Account not verified', messageStatus: 'error' });
+            return res.status(401).send({ message: 'Account not verified', messageStatus: 'error' });
         }
         req.session.user = user
 
-        res.send({ token: req.session.cookie, user, message: 'Welcome back to Tesla Mart!', messageStatus: 'success' })
+        res.status(200).send({ token: req.session.cookie, user, message: 'Welcome back to Tesla Mart!', messageStatus: 'success' })
 
     } catch (err) {
-        res.send({ message: 'Login failed', messageStatus: 'error' });
+        res.status(400).send({ message: 'Login failed', messageStatus: 'error' });
     }
 }
 
 
 exports.getUser = async (req, res, err) => {
-    const { id } = req.body
-    if (req.session.user && req.session.user._id === id) {
-        const user = await User.findById(req.session.user._id)
-            .populate({
-                path: 'inbox',
-                populate: [
-                    { path: 'to' }, { path: 'from' }
-                ]
-            })
-            .populate({
-                path: 'outbox',
-                populate: [
-                    { path: 'to' }, { path: 'from' }
-                ]
-            })
-        res.send(user)
+    try {
+        const { id } = req.body
+        if (req.session.user && req.session.user._id === id) {
+            const user = await User.findById(req.session.user._id)
+                .populate({
+                    path: 'inbox',
+                    populate: [
+                        { path: 'to' }, { path: 'from' }
+                    ]
+                })
+                .populate({
+                    path: 'outbox',
+                    populate: [
+                        { path: 'to' }, { path: 'from' }
+                    ]
+                })
+            res.status(200).send(user)
+        }
+    } catch (err) {
+        res.status(400).send({ message: 'Could not find user', messageStatus: 'error' });
     }
 }
 
 exports.forgot = async (req, res, err) => {
-    let { email} = req.body
-    if (email) {
-        email = email.toLowerCase()
-    }    
     try {
+
+        let { email } = req.body
+
+        if (email) {
+            email = email.toLowerCase()
+        }
+
         const user = await User.findOne({ email })
         if (!user) {
 
-            res.send({ message: 'Could not find account with that username', messageStatus: 'error' })
+            res.status(400).send({ message: 'Could not find account with that username', messageStatus: 'error' })
 
         } else {
 
@@ -206,25 +214,25 @@ exports.forgot = async (req, res, err) => {
         }
     } catch (err) {
         console.log(err)
-        res.send({ message: 'Failed to send reset password email', messageStatus: 'error' });
+        res.status(400).send({ message: 'Failed to send reset password email', messageStatus: 'error' });
     }
 }
 
 exports.setToken = async (req, res) => {
-    const { token } = req.params
-
     try {
+        const { token } = req.params
+
         const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
         if (!user) {
-            res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
+            res.status(400).send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
         } else {
             req.session.token = token
-            res.send({ message: 'Token accepted. Reset password now', messageStatus: 'success' })
+            res.status(200).send({ message: 'Token accepted. Reset password now', messageStatus: 'success' })
         }
     }
     catch (err) {
         console.log(err)
-        return res.send({ message: 'Failed to reset password', messageStatus: 'error' });
+        return res.status(400).send({ message: 'Failed to reset password', messageStatus: 'error' });
     }
 }
 
@@ -235,7 +243,7 @@ exports.reset = async (req, res) => {
     try {
         const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
         if (!user) {
-            return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
+            return res.status(400).send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
         } else {
             const saltRounds = 10;
 
@@ -246,16 +254,16 @@ exports.reset = async (req, res) => {
                 bcrypt.hash(password, salt, (err, hash) => {
                     if (err) {
                         console.log(err)
-                        return res.send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
+                        return res.status(400).send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
                     }
                     user.password = hash;
                     user.resetPasswordToken = null;
                     user.resetPasswordExpires = null;
                     user.save((err) => {
                         if (!err) {
-                            return res.send({ message: 'Password reset successful', messageStatus: 'success' });
+                            return res.status(200).send({ message: 'Password reset successful', messageStatus: 'success' });
                         } else {
-                            return res.send({ message: 'Password reset failed', messageStatus: 'error' });
+                            return res.status(400).send({ message: 'Password reset failed', messageStatus: 'error' });
                         }
                     })
                 })
@@ -264,7 +272,7 @@ exports.reset = async (req, res) => {
     }
     catch (err) {
         console.log(err)
-        return res.send({ message: 'Failed to reset password', messageStatus: 'error' });
+        return res.status(400).send({ message: 'Failed to reset password', messageStatus: 'error' });
     }
 }
 
@@ -283,7 +291,7 @@ exports.updateUser = async (req, res) => {
                 message: `Cannot update Profile with id=${id}. Maybe User was not found!`, messageStatus: 'error'
             });
         } else {
-            res.send({ image: req.body.image, message: "Profile was updated successfully.", messageStatus: 'success' });
+            res.status(200).send({ image: req.body.image, message: "Profile was updated successfully.", messageStatus: 'success' });
         }
     }
 }
@@ -291,7 +299,7 @@ exports.updateUser = async (req, res) => {
 exports.sendMessage = async (req, res) => {
     const { fromId, toId } = req.params
     if (fromId === toId) {
-        res.send({ message: 'This is your listing! Cannot message yourself', messageStatus: 'error' })
+        res.status(403).send({ message: 'This is your listing! Cannot message yourself', messageStatus: 'error' })
     } else {
         const { _id } = req.session.user
 
@@ -307,7 +315,7 @@ exports.sendMessage = async (req, res) => {
                         res.status(404).send({
                             message: `Cannot send message to id=${toId}. Maybe User was not found!`, messageStatus: 'error'
                         });
-                    } else res.send({ message: "Message was sent successfully.", messageStatus: 'success' });
+                    } else res.status(200).send({ message: "Message was sent successfully.", messageStatus: 'success' });
                 })
                 .catch(err => {
                     res.status(500).send({
@@ -321,8 +329,8 @@ exports.sendMessage = async (req, res) => {
 exports.logout = (req, res, err) => {
     try {
         req.session.destroy();
-        res.send({ message: 'Successfully logged out', messageStatus: 'success' })
+        res.status(200).send({ message: 'Successfully logged out', messageStatus: 'success' })
     } catch (err) {
-        res.send({ message: err.message, messageStatus: 'error' })
+        res.status(400).send({ message: err.message, messageStatus: 'error' })
     }
 }
