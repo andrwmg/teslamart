@@ -152,7 +152,10 @@ exports.login = async (req, res, err) => {
         }
         req.session.user = user
 
-        res.send({ user, message: 'Welcome back to Tesla Mart!', messageStatus: 'success' })
+        console.log(req.session)
+
+
+        res.send({ token: req.session.cookie, user, message: 'Welcome back to Tesla Mart!', messageStatus: 'success' })
 
     } catch (err) {
         res.send({ message: 'Login failed', messageStatus: 'error' });
