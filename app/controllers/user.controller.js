@@ -17,7 +17,7 @@ async function sendToken(userEmail, verificationToken, type) {
     let subject = null
     let text = null
 
-    const baseURL = process.env.LOCAL ? 'http:\/\/localhost:8081' : 'https:\/\/www.teslamartv2test.herokuapp.com'
+    const baseURL = process.env.LOCAL ? 'http:\/\/localhost:8081' : 'https:\/\/teslamartv2test.herokuapp.com'
 
     if (type === 'verify') {
         subject = 'Tesla Mart Account Verification Token'
