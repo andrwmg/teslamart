@@ -41,21 +41,20 @@ async function sendToken(userEmail, verificationToken, type) {
 exports.register = async (req, res, err) => {
     try {
         let { email, username } = req.body
-
         const { password, image } = req.body
         if (email && username) {
             email = email.toLowerCase()
             username = username.toLowerCase()
         }
 
-        const existingUser = await User.find({ $or: [{ username }, { email }] })
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] })
         console.log(existingUser)
         if (existingUser) {
             res.status(400).json({ message: 'Username or email are already taken', messageStatus: 'error' });
             return
         }
 
-        const user = new User({ email, username, image: image[0] })
+        const user = new User({ email, username, image })
         const token = user.generateVerificationToken();
 
         const salt = await bcrypt.genSalt(10);
@@ -98,19 +97,19 @@ exports.verify = async (req, res, err) => {
 
 exports.resend = async (req, res, err) => {
     try {
-        let { username } = req.body
+        let { email } = req.body
         const { password } = req.body
-        if (username) {
-            username = username.toLowerCase()
+        if (email) {
+            email = email.toLowerCase()
         }
 
-        const user = await User.findOne({ username })
+        const user = await User.findOne({ email })
         if (!user) {
-            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid email or password', messageStatus: 'error' });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid email or password', messageStatus: 'error' });
         }
         if (user.isVerified) {
             return res.status(400).send({ message: 'Account is already verified', messageStatus: 'error' });
@@ -135,18 +134,18 @@ exports.resend = async (req, res, err) => {
 
 exports.login = async (req, res, err) => {
     try {
-        let { username } = req.body
+        let { email } = req.body
         const { password } = req.body
-        if (username) {
-            username = username.toLowerCase()
+        if (email) {
+            email = email.toLowerCase()
         }
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid email or password', messageStatus: 'error' });
         }
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            return res.status(404).send({ message: 'Invalid username or password', messageStatus: 'error' });
+            return res.status(404).send({ message: 'Invalid email or password', messageStatus: 'error' });
         }
         if (!user.isVerified) {
             return res.status(401).send({ message: 'Account not verified', messageStatus: 'error' });
