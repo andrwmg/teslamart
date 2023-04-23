@@ -1,14 +1,11 @@
 const express = require('express');
 const db = require('../models/index.js')
 const User = db.users
-const nodemailer = require('nodemailer')
 const sgMail = require('@sendgrid/mail');
 const bcrypt = require('bcrypt')
 
 const sgAPI = process.env.SENDGRID_API_KEY
-const sgSMTP = process.env.SENDGRID_SMTP
 const sgUser = process.env.SENDGRID_USERNAME
-const sgPassword = process.env.SENDGRID_PASSWORD
 
 sgMail.setApiKey(sgAPI)
 
@@ -41,14 +38,14 @@ async function sendToken(userEmail, verificationToken, type) {
 exports.register = async (req, res, err) => {
     try {
         let { email, username } = req.body
+        let username_lower
         const { password, image } = req.body
         if (email && username) {
             email = email.toLowerCase()
-            username = username.toLowerCase()
+            username_lower = username.toLowerCase()
         }
 
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] })
-        console.log(existingUser)
+        const existingUser = await User.findOne({ $or: [{ username_lower }, { email }] })
         if (existingUser) {
             res.status(400).json({ message: 'Username or email are already taken', messageStatus: 'error' });
             return
@@ -56,6 +53,7 @@ exports.register = async (req, res, err) => {
 
         const user = new User({ email, username, image })
         const token = user.generateVerificationToken();
+        user.generateLower()
 
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);

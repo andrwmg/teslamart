@@ -28,16 +28,19 @@ const MessageSchema = new Schema({
 
 const UserSchema = new Schema({
     image: ImageSchema,
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
     username: {
         type: String,
         required: true,
         unique: true
     },
-    salt: String,
-    hash: String,
-    email: {
+    username_lower: {
         type: String,
-        required: true,
+        lowercase: true,
         unique: true
     },
     isVerified: {
@@ -56,6 +59,14 @@ const UserSchema = new Schema({
     //  }]
 }, { timestamps: true }
 )
+
+UserSchema.methods.generateLower = function() {
+    try {
+        this.username_lower = this.username.toLowerCase()
+    } catch (error) {
+        next(error);
+    }
+}
 
 UserSchema.methods.hashPassword = async function () {
     try {
