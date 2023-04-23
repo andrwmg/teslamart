@@ -14,7 +14,15 @@ async function sendToken(userEmail, verificationToken, type) {
     let subject = null
     let text = null
 
-    const baseURL = process.env.LOCAL ? 'http:\/\/localhost:8081' : 'https:\/\/teslamartv2test.herokuapp.com'
+    let baseURL
+    
+    if (process.env.LOCAL) {
+        baseURL = 'http:\/\/localhost:8081'
+     } else if (process.env.TEST) {
+         baseURL = 'https:\/\/teslamartv2test.herokuapp.com'
+     } else {
+         baseURL = 'https:\/\/teslamartv2.herokuapp.com'
+     }
 
     if (type === 'verify') {
         subject = 'Tesla Mart Account Verification Token'
@@ -113,7 +121,7 @@ exports.resend = async (req, res, err) => {
             return res.status(400).send({ message: 'Account is already verified', messageStatus: 'error' });
         }
 
-        const token = user.generateVerificationToken()
+        user.generateVerificationToken()
 
         user.save()
 
@@ -198,7 +206,7 @@ exports.forgot = async (req, res, err) => {
 
         } else {
 
-            const token = user.generateResetToken()
+            user.generateResetToken()
 
             user.save((err) => {
                 console.log(err)
@@ -243,26 +251,16 @@ exports.reset = async (req, res) => {
             return res.status(400).send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
         } else {
             const saltRounds = 10;
-
             bcrypt.genSalt(saltRounds, (err, salt) => {
                 if (err) {
                     return next(err);
                 } else { }
                 bcrypt.hash(password, salt, (err, hash) => {
-                    if (err) {
-                        console.log(err)
-                        return res.status(400).send({ message: 'Password reset token is invalid or has expired', messageStatus: 'error' });
-                    }
                     user.password = hash;
                     user.resetPasswordToken = null;
                     user.resetPasswordExpires = null;
-                    user.save((err) => {
-                        if (!err) {
-                            return res.status(200).send({ message: 'Password reset successful', messageStatus: 'success' });
-                        } else {
-                            return res.status(400).send({ message: 'Password reset failed', messageStatus: 'error' });
-                        }
-                    })
+                    user.save()
+                    res.status(200).send({ message: 'Password reset successful', messageStatus: 'success' });
                 })
             })
         }
@@ -273,23 +271,27 @@ exports.reset = async (req, res) => {
     }
 }
 
-
 exports.updateUser = async (req, res) => {
-    const { id } = req.params
-    const { _id } = req.session.user
-    if (id !== _id) {
-        res.status(500).send({
-            message: "Error updating Profile with id=" + id, messageStatus: 'error'
-        })
-    } else {
-        const user = await User.findByIdAndUpdate(id, req.body, { returnOriginal: false, new: true })
-        if (!user) {
-            res.status(404).send({
-                message: `Cannot update Profile with id=${id}. Maybe User was not found!`, messageStatus: 'error'
-            });
+    try {
+        const { id } = req.params
+        const { _id } = req.session.user
+        if (id !== _id) {
+            res.status(500).send({
+                message: "Error updating Profile with id=" + id, messageStatus: 'error'
+            })
         } else {
-            res.status(200).send({ image: req.body.image, message: "Profile was updated successfully.", messageStatus: 'success' });
+            const user = await User.findByIdAndUpdate(id, req.body, { returnOriginal: false, new: true })
+            if (!user) {
+                res.status(404).send({
+                    message: `Cannot update Profile with id=${id}. Maybe User was not found!`, messageStatus: 'error'
+                });
+            } else {
+                res.status(200).send({ image: req.body.image, message: "Profile was updated successfully.", messageStatus: 'success' });
+            }
         }
+    } catch (err) {
+        console.log(err)
+        return res.status(400).send({ message: 'Failed to update profile', messageStatus: 'error' });
     }
 }
 
