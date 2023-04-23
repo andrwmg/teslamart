@@ -11,7 +11,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
       folder: 'teslamart',
-      allowedFormats: ['jpeg','png','jpg']
+      allowedFormats: ['jpeg','png','jpg', 'bmp', 'webp', 'gif']
     }
     });
 
