@@ -14,8 +14,7 @@
 
 <h2>If I had more time I would change this</h2>
 <ul>
-<li>Use Mongo Atlas for user authentication to add email verification and password reset</li>
-<li>Refactor to use MUI styled components instead of inline styles</li>
+<li>Refactor to use styled components instead of inline styles</li>
 <li>Auto-scroll conversations to bottom on show and message send</li>
 <li>Multiple selections on filters (e.g. two models, three years, etc.)</li>
 <li>Add listing status (e.g. new, pending, sold)</li>
